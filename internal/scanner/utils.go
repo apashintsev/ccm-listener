@@ -14,19 +14,23 @@ func (s *scanner) getShardID(shard *ton.BlockIDExt) string {
 	return fmt.Sprintf("%d|%d", shard.Workchain, shard.Shard)
 }
 
+
+//с помощью этой функции выгребаем все блоки воркчейна рекурсивно
 func (s *scanner) getNonSeenShards(
 	ctx context.Context,
 	shard *ton.BlockIDExt,
 ) (ret []*ton.BlockIDExt, err error) {
 	if seqno, ok := s.shardLastSeqno[s.getShardID(shard)]; ok && seqno == shard.SeqNo {
-		return nil, nil
+		return nil, nil //если этот шард уже есть
 	}
 
+	//получаем блок воркчейна в котором был этот шард
 	block, err := s.api.GetBlockData(ctx, shard)
 	if err != nil {
 		return nil, fmt.Errorf("get block data err: ", err)
 	}
 
+	//получаем блоки воркчейна
 	parents, err := block.BlockInfo.GetParentBlocks()
 	if err != nil {
 		return nil, fmt.Errorf("get parent blocks (%d:%d): %w", shard.Workchain, shard.Shard, err)

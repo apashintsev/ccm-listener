@@ -2,11 +2,13 @@ package scanner
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"github.com/xssnick/tonutils-go/tvm/cell"
+	"photon-listener/internal/app"
 	"photon-listener/internal/storage"
 	"photon-listener/internal/structures"
 	"time"
+
+	"github.com/sirupsen/logrus"
+	"github.com/xssnick/tonutils-go/tvm/cell"
 
 	"github.com/xssnick/tonutils-go/address"
 	"github.com/xssnick/tonutils-go/tlb"
@@ -101,7 +103,9 @@ func (s *scanner) processTransaction(
 		if out.Msg.SenderAddr().String() != sender.String() {
 			continue
 		}
-
+		if out.Msg.DestAddr() != app.CFG.TargetContractAddress {
+			continue
+		}
 		externalOut := out.AsExternalOut()
 		if externalOut.Body == nil {
 			continue
